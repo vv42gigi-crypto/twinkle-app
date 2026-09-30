@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Twinkle App</title>
+  <style>
+    :root {
+      --bg-color: #121316;
+      --card-bg: #1c1d22;
+      --card-border: #2a2c33;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --text-main: #f3f4f6;
+      --text-sub: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      padding: 20px 16px 100px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Grid Folders */
+    .section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+    }
+
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .folder-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 130px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .folder-card:active {
+      transform: scale(0.97);
+    }
+
+    .folder-icon {
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.05);
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.05);
+    }
+
+    .folder-info .title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .folder-info .count {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* Floating Add Button */
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: calc(50% - 190px + 20px);
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: none;
+      color: #fff;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px var(--accent-glow);
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    @media (max-width: 430px) {
+      .fab {
+        right: 20px;
+      }
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 200;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: #18191d;
+      border: 1px solid var(--card-border);
+      border-radius: 28px 28px 0 0;
+      width: 100%;
+      max-width: 430px;
+      padding: 24px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .input-text {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    /* Icons Selector Grid */
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .icon-option {
+      width: 42px;
+      height: 42px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .icon-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <div class="logo">Twinkle ✨</div>
+    </header>
+
+    <div>
+      <div class="section-title">Мои папки</div>
+      <div class="folders-grid" id="foldersContainer"></div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="openModal()">+</button>
+
+  <!-- Modal New Folder -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Новая папка</h3>
+        <button class="close-btn" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Название</label>
+        <input type="text" id="folderName" class="input-text" placeholder="Например: Идеи, Закупки..." />
+      </div>
+
+      <div class="form-group">
+        <label>Выберите иконку</label>
+        <div class="icons-grid" id="iconsGrid"></div>
+      </div>
+
+      <button class="submit-btn" onclick="addFolder()">Создать папку</button>
+    </div>
+  </div>
+
+  <script>
+    // Иконки для выбора
+    const availableIcons = ["📁", "💼", "💡", "💰", "🏋️‍♂️️", "✈️", "🛒", "📚", "🎯", "🎨", "🎮", "❤️"];
+    let selectedIcon = availableIcons[0];
+
+    // Стартовые данные
+    const defaultFolders = [
+      { id: 1, title: "Работа", count: 12, icon: "💼" },
+      { id: 2, title: "Идеи", count: 5, icon: "💡" },
+      { id: 3, title: "Финансы", count: 8, icon: "💰" },
+      { id: 4, title: "Путешествия", count: 3, icon: "✈️" }
+    ];
+
+    // Загрузка из localStorage
+    let folders = JSON.parse(localStorage.getItem('twinkle_folders')) || defaultFolders;
+
+    function renderFolders() {
+      const container = document.getElementById('foldersContainer');
+      container.innerHTML = '';
+
+      folders.forEach(folder => {
+        const card = document.createElement('div');
+        card.className = 'folder-card';
+        card.innerHTML = `
+          <div class="folder-icon">${folder.icon}</div>
+          <div class="folder-info">
+            <div class="title">${folder.title}</div>
+            <div class="count">${folder.count} элементов</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderIcons() {
+      const grid = document.getElementById('iconsGrid');
+      grid.innerHTML = '';
+
+      availableIcons.forEach(icon => {
+        const item = document.createElement('div');
+        item.className = `icon-option ${icon === selectedIcon ? 'selected' : ''}`;
+        item.innerText = icon;
+        item.onclick = () => {
+          selectedIcon = icon;
+          renderIcons();
+        };
+        grid.appendChild(item);
+      });
+    }
+
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.getElementById('folderName').value = '';
+    }
+
+    function addFolder() {
+      const nameInput = document.getElementById('folderName');
+      const title = nameInput.value.trim();
+
+      if (!title) return;
+
+      const newFolder = {
+        id: Date.now(),
+        title: title,
+        count: 0,
+        icon: selectedIcon
+      };
+
+      folders.push(newFolder);
+      localStorage.setItem('twinkle_folders', JSON.stringify(folders));
+
+      renderFolders();
+      closeModal();
+    }
+
+    // Инициализация
+    renderIcons();
+    renderFolders();
+  </script>
+</body>
+</html>
